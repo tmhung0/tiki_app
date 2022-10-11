@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tiki_app/cart.dart';
 import 'package:tiki_app/provider/provider_cart.dart';
 import 'item.dart';
 
@@ -18,12 +17,7 @@ class ProductDetails extends StatelessWidget {
               padding: const EdgeInsets.all(10.0),
               child: Stack(alignment: Alignment.topRight, children: [
                 IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const Carts()));
-                    },
+                    onPressed: () {},
                     icon: const Icon(
                       Icons.shopping_cart_rounded,
                       color: Colors.white,
@@ -106,13 +100,7 @@ class ProductDetails extends StatelessWidget {
                         fixedSize: const Size(200, 30),
                         backgroundColor: Colors.red,
                       ),
-                      onPressed: () {
-                        cart.add(item);
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const Carts()));
-                      },
+                      onPressed: () {},
                       child: const Text('Chọn mua'),
                     ),
                   );

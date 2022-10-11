@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'item.dart';
 import 'products.dart';
-import 'cart.dart';
 import 'provider/provider_cart.dart';
 
 class HomePage extends StatefulWidget {
@@ -53,10 +52,7 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(10.0),
             child: Stack(alignment: Alignment.topRight, children: [
               IconButton(
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => const Carts()));
-                  },
+                  onPressed: () {},
                   icon: const Icon(
                     Icons.shopping_cart_rounded,
                     color: Colors.white,
