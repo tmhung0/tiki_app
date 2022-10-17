@@ -4,20 +4,9 @@ import 'package:flutter/material.dart';
 import 'item.dart';
 import 'package:tiki_app/product_details.dart';
 
-class Products extends StatelessWidget {
-  Products(
-      {super.key,
-      required this.image,
-      required this.name,
-      required this.price,
-      required this.quantity,
-      required this.vote,
-      required this.item});
-  String image;
-  String name;
-  int price;
-  String quantity;
-  int vote;
+class ComponentProduct extends StatelessWidget {
+  ComponentProduct({super.key, required this.item});
+
   Item item;
 
   @override
@@ -41,19 +30,19 @@ class Products extends StatelessWidget {
             Center(
               child: SizedBox(
                 height: 100,
-                child: Image(image: NetworkImage(image)),
+                child: Image(image: NetworkImage(item.image.toString())),
               ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: Text(
-                name,
+                item.name.toString(),
                 style:
                     const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
               ),
             ),
             Text(
-              '$price đ',
+              '${item.price} đ',
               style: const TextStyle(
                   color: Colors.red, fontWeight: FontWeight.w500, fontSize: 20),
             ),
@@ -64,7 +53,7 @@ class Products extends StatelessWidget {
                   height: 40,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: vote,
+                    itemCount: item.vote,
                     itemBuilder: (context, idx) {
                       return const Icon(
                         Icons.star,
@@ -75,9 +64,9 @@ class Products extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(
-                  width: 20,
+                  width: 10,
                 ),
-                Text('Đã bán: $quantity')
+                Text('Đã bán: ${item.sold.toString()}')
               ],
             ),
           ],

@@ -1,9 +1,13 @@
 // ignore_for_file: must_be_immutable
+import 'dart:convert';
+import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tiki_app/provider/provider_cart.dart';
 import 'item.dart';
-import 'products.dart';
-import 'provider/provider_cart.dart';
+import 'component_products.dart';
+import 'cart.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,19 +16,63 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TextEditingController _textEditingController = TextEditingController();
-  List<Item> itemSearch = items;
+  List<Item> listProducts = [];
+  List<Item> searchItem = [];
 
-  // ham search
+  final TextEditingController _textEditingController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  Future<void> _fetchData() async {
+    const apiUrl = 'https://mocki.io/v1/cdb94674-6db8-4339-bb48-1c68ce1be77b';
+    final response = await http.get(Uri.parse(apiUrl));
+    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+    final List<Item> loadedProducts = [];
+    extractedData["products"].forEach((itemData) {
+      loadedProducts.add(
+        Item(
+            id: itemData['id'],
+            name: itemData['name'],
+            price: itemData['price'],
+            image: itemData['image'],
+            vote: itemData['vote'],
+            quantity: itemData['quantity'],
+            sold: itemData['sold']),
+      );
+    });
+    setState(() => searchItem = listProducts = loadedProducts);
+  }
+
   void search(String query) {
-    final suggestions = items.where((item) {
-      final name = item.name.toLowerCase();
+    final suggestions = listProducts.where((item) {
+      final name = item.name.toString().toLowerCase();
       final input = query.toLowerCase();
       return name.contains(input);
     }).toList();
-    setState(
-      () => itemSearch = suggestions,
-    );
+    setState(() => {searchItem = suggestions});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        _getMoreData();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _textEditingController.dispose();
+    super.dispose();
+  }
+
+  _getMoreData() {
+    searchItem.addAll(test);
+    setState(() {});
   }
 
   @override
@@ -52,12 +100,15 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(10.0),
             child: Stack(alignment: Alignment.topRight, children: [
               IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => const Carts()));
+                  },
                   icon: const Icon(
                     Icons.shopping_cart_rounded,
                     color: Colors.white,
                   )),
-              Consumer<Cart>(
+              Consumer<CartProvider>(
                 builder: (context, cart, child) {
                   return Container(
                       width: 20,
@@ -65,7 +116,8 @@ class _HomePageState extends State<HomePage> {
                       decoration: BoxDecoration(
                           color: Colors.red,
                           borderRadius: BorderRadius.circular(10)),
-                      child: Center(child: Text(cart.count.toString())));
+                      child:
+                          Center(child: Text(cart.myCartCount().toString())));
                 },
               )
             ]),
@@ -75,15 +127,14 @@ class _HomePageState extends State<HomePage> {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: GridView.builder(
-          itemCount: itemSearch.length,
+          controller: _scrollController,
+          itemCount: searchItem.length + 1,
           itemBuilder: (context, idx) {
-            return Products(
-              image: itemSearch[idx].image,
-              name: itemSearch[idx].name,
-              price: itemSearch[idx].price,
-              quantity: itemSearch[idx].quantity,
-              vote: itemSearch[idx].vote,
-              item: itemSearch[idx],
+            if (idx == searchItem.length) {
+              return const CupertinoActivityIndicator();
+            }
+            return ComponentProduct(
+              item: searchItem[idx],
             );
           },
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

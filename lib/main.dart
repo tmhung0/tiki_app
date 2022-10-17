@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:tiki_app/provider/provider_cart.dart';
 
 void main() {
-  runApp(ChangeNotifierProvider(
-    create: (_) => Cart(),
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider<CartProvider>(create: (contex) => CartProvider())
+    ],
     child: const MaterialApp(
       home: MyApp(),
     ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tiki_app/cart.dart';
 import 'package:tiki_app/provider/provider_cart.dart';
+
 import 'item.dart';
 
 class ProductDetails extends StatelessWidget {
@@ -17,12 +19,17 @@ class ProductDetails extends StatelessWidget {
               padding: const EdgeInsets.all(10.0),
               child: Stack(alignment: Alignment.topRight, children: [
                 IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const Carts()));
+                    },
                     icon: const Icon(
                       Icons.shopping_cart_rounded,
                       color: Colors.white,
                     )),
-                Consumer<Cart>(
+                Consumer<CartProvider>(
                   builder: (context, cart, child) {
                     return Container(
                         width: 20,
@@ -30,7 +37,8 @@ class ProductDetails extends StatelessWidget {
                         decoration: BoxDecoration(
                             color: Colors.red,
                             borderRadius: BorderRadius.circular(10)),
-                        child: Center(child: Text(cart.count.toString())));
+                        child:
+                            Center(child: Text(cart.myCartCount().toString())));
                   },
                 )
               ]),
@@ -45,11 +53,11 @@ class ProductDetails extends StatelessWidget {
               SizedBox(
                   width: 400,
                   height: 200,
-                  child: Image(image: NetworkImage(item.image))),
+                  child: Image(image: NetworkImage(item.image.toString()))),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 child: Text(
-                  item.name,
+                  item.name.toString(),
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.w500),
                 ),
@@ -73,10 +81,11 @@ class ProductDetails extends StatelessWidget {
                         },
                       ),
                     ),
+                    Text('(${item.quantity})'),
                     const SizedBox(
                       width: 20,
                     ),
-                    Text('Đã bán: ${item.quantity}')
+                    Text('Đã bán: ${item.sold}')
                   ],
                 ),
               ),
@@ -92,17 +101,38 @@ class ProductDetails extends StatelessWidget {
                   ),
                 ),
               ),
-              Consumer<Cart>(
+              Consumer<CartProvider>(
                 builder: (context, cart, child) {
-                  return Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        fixedSize: const Size(200, 30),
-                        backgroundColor: Colors.red,
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: const Size(155, 30),
+                          backgroundColor: Colors.red,
+                        ),
+                        onPressed: () {
+                          cart.addItemToCart(item.id, item.name.toString(),
+                              item.image.toString(), item.price);
+                        },
+                        child: const Text('Thêm vào giỏ hàng'),
                       ),
-                      onPressed: () {},
-                      child: const Text('Chọn mua'),
-                    ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: const Size(150, 30),
+                          backgroundColor: Colors.red,
+                        ),
+                        onPressed: () {
+                          cart.addItemToCart(item.id, item.name.toString(),
+                              item.image.toString(), item.price);
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const Carts()));
+                        },
+                        child: const Text('Mua ngay '),
+                      ),
+                    ],
                   );
                 },
               )
