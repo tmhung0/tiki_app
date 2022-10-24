@@ -1,3 +1,4 @@
+// import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
@@ -18,7 +19,7 @@ class Carts extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: Text(
-                      'Tất cả (${cart.cartList.length} sản phẩm) ',
+                      'Tất cả (${cart.cartList.length} sản phẩm 📫) ',
                       style: const TextStyle(
                           fontSize: 17, fontWeight: FontWeight.w500),
                     ),
@@ -62,33 +63,18 @@ class Carts extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Container(
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                      border:
-                                          Border.all(style: BorderStyle.solid),
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(10))),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      IconButton(
-                                        onPressed: () {
-                                          cart.sub(cart.cartList[index]);
-                                        },
-                                        icon: const Icon(Icons.remove_outlined),
-                                      ),
-                                      Text(cart.cartList[index].quantity
-                                          .toString()),
-                                      IconButton(
-                                          onPressed: () {
-                                            cart.add(cart.cartList[index]);
-                                          },
-                                          icon: const Icon(Icons.add)),
-                                    ],
-                                  ),
+                                IconButton(
+                                  onPressed: () {
+                                    cart.sub(cart.cartList[index]);
+                                  },
+                                  icon: const Icon(Icons.remove_outlined),
                                 ),
+                                Text(cart.cartList[index].quantity.toString()),
+                                IconButton(
+                                    onPressed: () {
+                                      cart.add(cart.cartList[index]);
+                                    },
+                                    icon: const Icon(Icons.add)),
                               ],
                             ),
                           ],
@@ -148,6 +134,9 @@ class Carts extends StatelessWidget {
                                       ? const Text('Giỏ hàng trống')
                                       : const Text('Đặt hàng thành công'),
                                 ));
+                        // await FirebaseMessaging.instance
+                        //     .subscribeToTopic('orderSuccess');
+
                         cart.clearCart();
                       },
                       // ignore: sort_child_properties_last

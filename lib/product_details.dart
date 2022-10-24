@@ -104,19 +104,8 @@ class ProductDetails extends StatelessWidget {
               Consumer<CartProvider>(
                 builder: (context, cart, child) {
                   return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          fixedSize: const Size(155, 30),
-                          backgroundColor: Colors.red,
-                        ),
-                        onPressed: () {
-                          cart.addItemToCart(item.id, item.name.toString(),
-                              item.image.toString(), item.price);
-                        },
-                        child: const Text('Thêm vào giỏ hàng'),
-                      ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           fixedSize: const Size(150, 30),

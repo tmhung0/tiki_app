@@ -27,19 +27,13 @@ class CartItem {
 }
 
 class CartProvider extends ChangeNotifier {
-  //list
   final List<CartItem> _cartList = [];
-  //check
-  late bool _allischecked = true;
-  //get list
-  List<CartItem> get cartList => _cartList;
-  //get check
-  bool get allischecked => _allischecked;
 
-  checkitem(CartItem item, value) {
-    item.ischecked = value;
-    notifyListeners();
-  }
+  late bool _allischecked = true;
+
+  List<CartItem> get cartList => _cartList;
+
+  bool get allischecked => _allischecked;
 
   set allischecked(bool value) {
     _allischecked = value;
