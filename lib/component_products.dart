@@ -30,13 +30,13 @@ class ComponentProduct extends StatelessWidget {
             Center(
               child: SizedBox(
                 height: 100,
-                child: Image(image: NetworkImage(item.image.toString())),
+                child: Image(image: NetworkImage(item.thumbnail.toString())),
               ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: Text(
-                item.name.toString(),
+                item.title.toString(),
                 style:
                     const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
               ),
@@ -53,7 +53,7 @@ class ComponentProduct extends StatelessWidget {
                   height: 40,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: item.vote,
+                    itemCount: 5,
                     itemBuilder: (context, idx) {
                       return const Icon(
                         Icons.star,
@@ -66,7 +66,7 @@ class ComponentProduct extends StatelessWidget {
                 const SizedBox(
                   width: 10,
                 ),
-                Text('Đã bán: ${item.sold.toString()}')
+                Text('Đã bán: ${item.stock.toString()}')
               ],
             ),
           ],

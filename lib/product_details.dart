@@ -53,11 +53,11 @@ class ProductDetails extends StatelessWidget {
               SizedBox(
                   width: 400,
                   height: 200,
-                  child: Image(image: NetworkImage(item.image.toString()))),
+                  child: Image(image: NetworkImage(item.thumbnail.toString()))),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 child: Text(
-                  item.name.toString(),
+                  item.title.toString(),
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.w500),
                 ),
@@ -71,7 +71,7 @@ class ProductDetails extends StatelessWidget {
                       height: 20,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        itemCount: item.vote,
+                        itemCount: 5,
                         itemBuilder: (context, idx) {
                           return const Icon(
                             Icons.star,
@@ -81,11 +81,11 @@ class ProductDetails extends StatelessWidget {
                         },
                       ),
                     ),
-                    Text('(${item.quantity})'),
+                    Text('(${item.stock})'),
                     const SizedBox(
                       width: 20,
                     ),
-                    Text('Đã bán: ${item.sold}')
+                    // Text('Đã bán: ${item.sold}')
                   ],
                 ),
               ),
@@ -112,8 +112,11 @@ class ProductDetails extends StatelessWidget {
                           backgroundColor: Colors.red,
                         ),
                         onPressed: () {
-                          cart.addItemToCart(item.id, item.name.toString(),
-                              item.image.toString(), item.price);
+                          cart.addItemToCart(
+                              item.id.toString(),
+                              item.title.toString(),
+                              item.thumbnail.toString(),
+                              item.price);
                           Navigator.push(
                               context,
                               MaterialPageRoute(

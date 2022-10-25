@@ -18,33 +18,78 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Item> listProducts = [];
   List<Item> searchItem = [];
+  bool _isLoading = false;
 
+  late List<Item> getData;
+  late int numberLoadProduct = 0;
   final TextEditingController _textEditingController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
   Future<void> _fetchData() async {
-    const apiUrl = 'https://mocki.io/v1/cdb94674-6db8-4339-bb48-1c68ce1be77b';
+    const apiUrl = 'https://dummyjson.com/products?limit=40';
     final response = await http.get(Uri.parse(apiUrl));
     final extractedData = json.decode(response.body) as Map<String, dynamic>;
+    print(extractedData);
     final List<Item> loadedProducts = [];
     extractedData["products"].forEach((itemData) {
       loadedProducts.add(
         Item(
-            id: itemData['id'],
-            name: itemData['name'],
-            price: itemData['price'],
-            image: itemData['image'],
-            vote: itemData['vote'],
-            quantity: itemData['quantity'],
-            sold: itemData['sold']),
+          id: itemData['id'],
+          title: itemData['title'],
+          price: itemData['price'],
+          thumbnail: itemData['thumbnail'],
+          stock: itemData['stock'],
+        ),
       );
     });
     setState(() => searchItem = listProducts = loadedProducts);
   }
 
+  Future<void> searchData(String searchText) async {
+    final apiUrl = 'https://dummyjson.com/products/search?q=$searchText';
+    final response = await http.get(Uri.parse(apiUrl));
+    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+    print(extractedData);
+    final List<Item> searchDataItem = [];
+    extractedData["products"].forEach((itemData) {
+      searchDataItem.add(
+        Item(
+          id: itemData['id'],
+          title: itemData['title'],
+          price: itemData['price'],
+          thumbnail: itemData['thumbnail'],
+          stock: itemData['stock'],
+        ),
+      );
+    });
+    setState(() => searchItem = searchDataItem);
+  }
+
+  Future<void> getSperpage(int items) async {
+    final apiUrl = 'https://dummyjson.com/products?limit=20&skip=$items';
+    final response = await http.get(Uri.parse(apiUrl));
+    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+    final List<Item> loadedProducts2 = [];
+    extractedData["products"].forEach((itemData) {
+      loadedProducts2.add(
+        Item(
+          id: itemData['id'],
+          title: itemData['title'],
+          price: itemData['price'],
+          thumbnail: itemData['thumbnail'],
+          stock: itemData['stock'],
+        ),
+      );
+    });
+    setState(() {
+      searchItem.addAll(loadedProducts2);
+    });
+  }
+
   void search(String query) {
+    searchData(_textEditingController.text);
     final suggestions = listProducts.where((item) {
-      final name = item.name.toString().toLowerCase();
+      final name = item.title.toString().toLowerCase();
       final input = query.toLowerCase();
       return name.contains(input);
     }).toList();
@@ -71,8 +116,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   _getMoreData() {
-    searchItem.addAll(test);
-    setState(() {});
+    setState(() {
+      getSperpage(numberLoadProduct += 20);
+    });
+
+    print('searchItem $searchItem');
   }
 
   @override
