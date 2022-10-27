@@ -66,7 +66,10 @@ class ComponentProduct extends StatelessWidget {
                 const SizedBox(
                   width: 10,
                 ),
-                Text('Đã bán: ${item.stock.toString()}')
+                Text(
+                  'Đã bán: ${item.stock.toString()}',
+                  style: const TextStyle(fontSize: 10),
+                )
               ],
             ),
           ],

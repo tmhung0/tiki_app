@@ -37,8 +37,8 @@ class ProductDetails extends StatelessWidget {
                         decoration: BoxDecoration(
                             color: Colors.red,
                             borderRadius: BorderRadius.circular(10)),
-                        child:
-                            Center(child: Text(cart.myCartCount().toString())));
+                        child: Center(
+                            child: Text(cart.cartList.length.toString())));
                   },
                 )
               ]),
@@ -116,7 +116,7 @@ class ProductDetails extends StatelessWidget {
                               item.id.toString(),
                               item.title.toString(),
                               item.thumbnail.toString(),
-                              item.price);
+                              item.price!);
                           Navigator.push(
                               context,
                               MaterialPageRoute(

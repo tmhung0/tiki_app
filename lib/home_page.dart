@@ -1,5 +1,6 @@
 // ignore_for_file: must_be_immutable
 import 'dart:convert';
+import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:tiki_app/provider/provider_cart.dart';
 import 'item.dart';
 import 'component_products.dart';
 import 'cart.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,10 +20,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Item> listProducts = [];
   List<Item> searchItem = [];
-  bool _isLoading = false;
 
+  stt.SpeechToText? _speech;
+  bool _isListening = false;
+  bool _checkLoad = true;
   late List<Item> getData;
   late int numberLoadProduct = 0;
+
   final TextEditingController _textEditingController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -29,7 +34,6 @@ class _HomePageState extends State<HomePage> {
     const apiUrl = 'https://dummyjson.com/products?limit=40';
     final response = await http.get(Uri.parse(apiUrl));
     final extractedData = json.decode(response.body) as Map<String, dynamic>;
-    print(extractedData);
     final List<Item> loadedProducts = [];
     extractedData["products"].forEach((itemData) {
       loadedProducts.add(
@@ -42,14 +46,16 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     });
-    setState(() => searchItem = listProducts = loadedProducts);
+    setState(() {
+      _checkLoad = true;
+      searchItem = searchItem = loadedProducts;
+    });
   }
 
   Future<void> searchData(String searchText) async {
     final apiUrl = 'https://dummyjson.com/products/search?q=$searchText';
     final response = await http.get(Uri.parse(apiUrl));
     final extractedData = json.decode(response.body) as Map<String, dynamic>;
-    print(extractedData);
     final List<Item> searchDataItem = [];
     extractedData["products"].forEach((itemData) {
       searchDataItem.add(
@@ -62,16 +68,24 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     });
-    setState(() => searchItem = searchDataItem);
+    setState(() {
+      if (searchText == '') {
+        _fetchData();
+        _checkLoad = true;
+      } else {
+        _checkLoad = false;
+        searchItem = searchDataItem;
+      }
+    });
   }
 
   Future<void> getSperpage(int items) async {
     final apiUrl = 'https://dummyjson.com/products?limit=20&skip=$items';
     final response = await http.get(Uri.parse(apiUrl));
     final extractedData = json.decode(response.body) as Map<String, dynamic>;
-    final List<Item> loadedProducts2 = [];
+    final List<Item> addProducts = [];
     extractedData["products"].forEach((itemData) {
-      loadedProducts2.add(
+      addProducts.add(
         Item(
           id: itemData['id'],
           title: itemData['title'],
@@ -82,8 +96,33 @@ class _HomePageState extends State<HomePage> {
       );
     });
     setState(() {
-      searchItem.addAll(loadedProducts2);
+      searchItem.addAll(addProducts);
     });
+  }
+
+  //hàm chuyển giọng nói thành text
+  void onListen() async {
+    bool available = await _speech!.initialize(
+        onStatus: (val) => print('onStatus: $val'),
+        onError: (val) => print('onError: $val'));
+
+    if (!_isListening) {
+      if (available) {
+        setState(() {
+          _isListening = true;
+          _speech!.listen(
+            onResult: (val) => setState(() {
+              _textEditingController.text = val.recognizedWords;
+            }),
+          );
+        });
+      }
+    } else {
+      setState(() {
+        _isListening = false;
+        _speech!.stop();
+      });
+    }
   }
 
   void search(String query) {
@@ -99,13 +138,22 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+
+    print(_checkLoad);
     _fetchData();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
+              _scrollController.position.maxScrollExtent &&
+          _checkLoad) {
         _getMoreData();
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _speech = stt.SpeechToText();
   }
 
   @override
@@ -119,8 +167,6 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       getSperpage(numberLoadProduct += 20);
     });
-
-    print('searchItem $searchItem');
   }
 
   @override
@@ -144,31 +190,49 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         actions: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Stack(alignment: Alignment.topRight, children: [
-              IconButton(
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => const Carts()));
-                  },
-                  icon: const Icon(
-                    Icons.shopping_cart_rounded,
-                    color: Colors.white,
-                  )),
-              Consumer<CartProvider>(
-                builder: (context, cart, child) {
-                  return Container(
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(10)),
-                      child:
-                          Center(child: Text(cart.myCartCount().toString())));
-                },
-              )
-            ]),
+          Row(
+            children: [
+              AvatarGlow(
+                animate: _isListening,
+                endRadius: 20,
+                glowColor: Theme.of(context).primaryColor,
+                duration: const Duration(milliseconds: 2000),
+                repeatPauseDuration: const Duration(microseconds: 100),
+                repeat: true,
+                child: FloatingActionButton(
+                  onPressed: () => onListen(),
+                  child: Icon(_isListening ? Icons.mic : Icons.mic_none),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Stack(alignment: Alignment.topRight, children: [
+                  IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const Carts()));
+                      },
+                      icon: const Icon(
+                        Icons.shopping_cart_rounded,
+                        color: Colors.white,
+                      )),
+                  Consumer<CartProvider>(
+                    builder: (context, cart, child) {
+                      return Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(10)),
+                          child: Center(
+                              child: Text(cart.cartList.length.toString())));
+                    },
+                  )
+                ]),
+              ),
+            ],
           )
         ],
       ),
@@ -187,7 +251,7 @@ class _HomePageState extends State<HomePage> {
           },
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.75,
+              childAspectRatio: 0.71,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10),
         ),
